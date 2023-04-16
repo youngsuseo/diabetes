@@ -1,0 +1,12 @@
+# Default ignored files
+/shelf/
+/.idea/
+diabetes.iml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+# node modules
+node_modules/
