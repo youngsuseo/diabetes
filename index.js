@@ -1,36 +1,42 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
+const cors = require('cors');
 const { Configuration, OpenAIApi } = require("openai");
 const nlp = require("compromise");
 
 const configuration = new Configuration({
-    apiKey: API_KEY,
+    apiKey: 'sk-test',
 });
 const openai = new OpenAIApi(configuration);
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 app.get('/', function (req, res) {
     res.send('Hello World')
-})
+});
 
 app.post('/foods', async function (req, res) {
-    let {userQuery} = req.body;
+
+    let {gender, age, weight, bloodSugar, userQuery} = req.body;
+
+    console.log(`gender: ${gender}, age: ${age}, weight: ${weight}, bloodSugar: ${bloodSugar}, userQuery: ${userQuery}`);
 
     let improvedQuery = improveQuestion(userQuery);
 
-    const completion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
-        messages: [
-            {role: "system", content: "당신은 당뇨병 환자들을 위한 식단 조절에 대한 정보를 제공하는 전문가입니다. 사용자의 질문에 대해 관련 논문 출처를 참조하여 답변을 제공하십시오. 사용자가 특정 음식에 대해 먹어도 되는지 여부를 묻는 경우, 그 음식을 먹는 것이 좋은지, 주의사항이 있는지, 대체 음식이 있는지 등의 정보를 제공해 주세요."},
-            {role: "user", content: improvedQuery}
-        ],
-    });
-    let message = completion.data.choices[0].message;
-    console.log(message);
-    res.send(message.content);
-})
+    // const completion = await openai.createChatCompletion({
+    //     model: "gpt-3.5-turbo",
+    //     messages: [
+    //         {role: "system", content: "당신은 당뇨병 환자들을 위한 식단 조절에 대한 정보를 제공하는 전문가입니다. 사용자의 질문에 대해 관련 논문 출처를 참조하여 답변을 제공하십시오. 사용자가 특정 음식에 대해 먹어도 되는지 여부를 묻는 경우, 그 음식을 먹는 것이 좋은지, 주의사항이 있는지, 대체 음식이 있는지 등의 정보를 제공해 주세요."},
+    //         {role: "user", content: `저의 몸무게는 ${improvedQuery}`}
+    //     ],
+    // });
+    // let message = completion.data.choices[0].message;
+    // console.log(message);
+    // res.send(message.content);
+    res.send(`send success: ${improvedQuery}`);
+});
 
 // 사용자 입력을 분석하여 키워드를 추출하는 함수
 function extractKeywords(input) {
@@ -52,4 +58,4 @@ function improveQuestion(input) {
     return improvedQuestion;
 }
 
-app.listen(3000)
+app.listen(3000);
