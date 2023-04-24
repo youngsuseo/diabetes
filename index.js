@@ -28,10 +28,10 @@ app.post('/foods', async function (req, res) {
     let messages = [
         {
             role: "system",
-            content: "당신은 당뇨병 환자들을 위한 식단 조절에 대한 정보를 제공하는 전문가입니다. 사용자의 질문에 대해 관련 논문 출처를 함께 첨부하여 답변을 제공하십시오. " +
-                "사용자가 특정 음식에 대해 먹어도 되는지 여부를 묻는 경우, 그 음식을 먹는 것이 좋은지, 주의사항이 있는지, 대체 음식이 있는지 등의 정보를 제공해 주세요." +
-                "HTML 태그를 사용하여 답변을 해주세요." +
-                `예를 들어, <p>이 음식은 먹어도 되지만, <b>과도한 섭취는 주의해야 합니다.</b></p>`
+            content: "You are an expert providing information on dietary management for individuals with diabetes. " +
+                "When answering a user's question, please include relevant research paper sources. " +
+                "If the user asks about whether they can eat a certain food, provide information on whether it's good to eat, " +
+                "any precautions, and alternatives if available. Answer in Korean"
         }
     ];
 
@@ -72,43 +72,21 @@ app.post('/foods', async function (req, res) {
 // 식단 추천 api
 app.post('/meals', async function (req, res) {
     let { chatMessage } = req.body;
-    console.log(`chatMessage: ${chatMessage}`);
 
     let todayDateTime = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
 
     const completion = await openai.createChatCompletion({
-        model: "gpt-4.0",
+        model: "gpt-3.5-turbo",
         messages: [
-            {role: "system", content: "당신은 당뇨병 환자들을 위한 아침, 점심, 저녁에 대한 구체적인 음식 목록을 제공하는 전문가입니다. " +
-                    `건강한 식습관과 당뇨병 관리에 도움이 되는 한식 식단을 제안해주세요. 그리고 오늘은 ${todayDateTime} 입니다.` +
-                    "또한, 섭취 양 (g) 수와 칼로리 (kcal) 값을 함께 전달해주세요. " +
-                    `${chatMessage} 의 글을 기반으로 당뇨병 환자에게 좋은 식단을 오늘, 내일 이틀치만 구성해주세요. `+
-                    "예를 들어, JSON 형식으로 아래와 같이 제공해주세요. 다른 문장은 필요없이 JSON 부분만 알려주세요. " +
-                    "[\n" +
-                    " {\n" +
-                    "   \"title\": \"오트밀 (50g, 150kcal), 바나나 (30g, 130kcal), 요거트 (25g, 200kcal)\",\n" +
-                    "   \"start\": \"2023-04-21T07:30:00\",\n" +
-                    "   \"end\": \"2023-04-21T08:00:00\"\n" +
-                    " },\n" +
-                    " {\n" +
-                    "   \"title\": \"비지찌개 (400g, 550kcal), 무쌈 (30g, 70kcal), 생선구이 (70g, 250kcal)\",\n" +
-                    "   \"start\": \"2023-04-21T12:00:00\",\n" +
-                    "   \"end\": \"2023-04-21T13:30:00\"\n" +
-                    " },\n" +
-                    " {\n" +
-                    "   \"title\": \"비지찌개 (400g, 550kcal), 무쌈 (30g, 70kcal), 생선구이 (70g, 250kcal)\",\n" +
-                    "   \"start\": \"2023-04-21T18:00:00\",\n" +
-                    "   \"end\": \"2023-04-21T19:00:00\"\n" +
-                    " }\n" +
-                    "]"},
-            {role: "user", content: "다른 문장은 필요없이 JSON 데이터만 알려주세요."}
+            {role: "system", content: `You are an expert in providing specific food lists for breakfast, lunch, and dinner for people with diabetes. Please suggest a Korean diet to help them eat healthy and manage their diabetes, and today is ${todayDateTime}. Also, please provide the number of servings (g) and calorie (kcal) values. Based on the text in ${chatMessage}, please organize a good diet for diabetics for today and tomorrow. For example, please provide it in JSON format as below. We don't need the rest of the sentence, just the JSON part.`
+                + "[{\"meal\": \"morning\", \"title\": \"Oatmeal (50g, 150kcal), Banana (30g, 130kcal), Yogurt (25g, 200kcal)\", \"start\": \"2023-04-21T07:30:00\", \"end\": \"2023-04-21T08:00:00\"}, {\"meal\": \"lunch\", \"title\": \"Bean paste soup (400g, 550kcal), Radish wraps (30g, 70kcal), Grilled fish (70g, 250kcal)\", \"start\": \"2023-04-21T12:00:00\", \"end\": \"2023-04-21T13:30:00\"}, {\"meal\": \"dinner\", \"title\": \"Bean paste soup (400g, 550kcal), Radish wraps (30g, 70kcal), Grilled fish (70g, 250kcal)\", \"start\": \"2023-04-21T18:00:00\", \"end\": \"2023-04-21T19:00:00\"}]"},
+            {role: "user", content: "Just give me the JSON data, no other sentences."}
         ],
     });
     let content = completion.data.choices[0].message.content;
-    console.log(content);
     res.json(content);
-});
+})
 
-module.exports.handler = serverless(app);
+// module.exports.handler = serverless(app);
 
-// app.listen(3000);
+app.listen(3000);
