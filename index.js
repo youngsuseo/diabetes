@@ -10,8 +10,7 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 const corsOptions = {
-    origin: 'https://diabetes-meals.pages.dev/',
-    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+    origin: 'https://diabetes-meals.pages.dev',
     credentials: true
 }
 app.use(cors(corsOptions));
@@ -78,7 +77,7 @@ app.post('/meals', async function (req, res) {
     const completion = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [
-            {role: "system", content: `You are an expert in providing specific food lists for breakfast, lunch, and dinner for people with diabetes. Please suggest a Korean diet to help them eat healthy and manage their diabetes, and today is ${todayDateTime}. Also, please provide the number of servings (g) and calorie (kcal) values. Based on the text in ${chatMessage}, please organize a good diet for diabetics for today and tomorrow. For example, please provide it in JSON format as below. We don't need the rest of the sentence, just the JSON part.`
+            {role: "system", content: `You are an expert in providing specific food lists for breakfast, lunch, and dinner for people with diabetes. Please suggest a Korean diet to help them eat healthy and manage their diabetes, and today is ${todayDateTime}. Also, please provide the number of servings (g) and calorie (kcal) values. Based on the text in ${chatMessage}, please organize a good diet for diabetics for today. For example, please provide it in JSON format as below. We don't need the rest of the sentence, just the JSON part.`
                 + "[{\"meal\": \"morning\", \"title\": \"Oatmeal (50g, 150kcal), Banana (30g, 130kcal), Yogurt (25g, 200kcal)\", \"start\": \"2023-04-21T07:30:00\", \"end\": \"2023-04-21T08:00:00\"}, {\"meal\": \"lunch\", \"title\": \"Bean paste soup (400g, 550kcal), Radish wraps (30g, 70kcal), Grilled fish (70g, 250kcal)\", \"start\": \"2023-04-21T12:00:00\", \"end\": \"2023-04-21T13:30:00\"}, {\"meal\": \"dinner\", \"title\": \"Bean paste soup (400g, 550kcal), Radish wraps (30g, 70kcal), Grilled fish (70g, 250kcal)\", \"start\": \"2023-04-21T18:00:00\", \"end\": \"2023-04-21T19:00:00\"}]"},
             {role: "user", content: "Just give me the JSON data, no other sentences."}
         ],
@@ -87,6 +86,6 @@ app.post('/meals', async function (req, res) {
     res.json(content);
 })
 
-// module.exports.handler = serverless(app);
+module.exports.handler = serverless(app);
 
-app.listen(3000);
+// app.listen(3000);
