@@ -1,4 +1,5 @@
 const express = require('express');
+const serverless = require('serverless-http');
 const app = express();
 const cors = require('cors');
 const { Configuration, OpenAIApi } = require("openai");
@@ -8,7 +9,12 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-app.use(cors());
+const corsOptions = {
+    origin: 'https://diabetes-meals.pages.dev/',
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+    credentials: true
+}
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
@@ -71,9 +77,8 @@ app.post('/meals', async function (req, res) {
     let todayDateTime = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
 
     const completion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4.0",
         messages: [
-            // FIXME prompt 수요
             {role: "system", content: "당신은 당뇨병 환자들을 위한 아침, 점심, 저녁에 대한 구체적인 음식 목록을 제공하는 전문가입니다. " +
                     `건강한 식습관과 당뇨병 관리에 도움이 되는 한식 식단을 제안해주세요. 그리고 오늘은 ${todayDateTime} 입니다.` +
                     "또한, 섭취 양 (g) 수와 칼로리 (kcal) 값을 함께 전달해주세요. " +
@@ -104,4 +109,6 @@ app.post('/meals', async function (req, res) {
     res.json(content);
 });
 
-app.listen(3000);
+module.exports.handler = serverless(app);
+
+// app.listen(3000);
